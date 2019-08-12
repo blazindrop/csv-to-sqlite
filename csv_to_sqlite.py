@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 """A script that processes the input CSV files and copies them into a SQLite database."""
 import csv
 import sqlite3
