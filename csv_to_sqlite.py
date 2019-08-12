@@ -49,7 +49,8 @@ class CsvFileInfo:
         return "text"
 
     def __enter__(self):
-        self.csvfile = open(self.path, encoding="utf8") 
+        #self.csvfile = open(self.path, encoding="utf8")
+        self.csvfile = open(self.path, encoding="latin1")
         self.reader = csv.reader(self.csvfile, delimiter=self.options.delimiter)
         return self
 
@@ -92,7 +93,7 @@ class CsvFileInfo:
             except:
                 pass
         createQuery = 'create table [{tableName}] (\n'.format(tableName=self.get_table_name()) \
-            + ',\n'.join("\t[%s] %s" % (i[0], i[1]) for i in zip(self.columnNames, self.columnTypes)) \
+            + ',\n'.join("\t[%s] %s COLLATE NOCASE" % (i[0], i[1]) for i in zip(self.columnNames, self.columnTypes)) \
             + '\n);'
         write_out(createQuery)
         connection.execute(createQuery)
@@ -176,14 +177,14 @@ def start(file, output, typing, drop_tables, verbose, delimiter):
     with click.progressbar(files) as _files:
         actual = files if verbose else _files
         for file in actual:
-            try:
+            #try:
                 file = file.strip()
                 write_out("Processing " + file)
                 with CsvFileInfo(file, defaults) as info:
                     info.determine_types()
                     totalRowsInserted += info.save_to_db(conn)
-            except Exception as exc:
-                print("Error on table {0}: \n {1}".format(info.get_table_name(), exc))
+            #except Exception as exc:
+                #print("Error on table {0}: \n {1}".format(info.get_table_name(), exc))
     print("Written {0} rows into {1} tables in {2:.3f} seconds".format(totalRowsInserted, len(files), time.perf_counter() - startTime))
     conn.commit()
 
